@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <!-- Fondamentale per il responsive sui dispositivi mobili -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inserimento Turni Sole365</title>
+    <link rel="stylesheet" href="css/turni.css">
+</head>
+<body>
+
+<div class="card">
+    <h2>Nuovo Turno</h2>
+    <form id="turnoForm">
+        <label for="titolo">Nome Turno</label>
+        <input type="text" id="titolo" value="TURNO SOLE365" readonly>
+
+        <label for="inizio">Inizio Turno</label>
+        <input type="datetime-local" id="inizio" required>
+
+        <label for="fine">Fine Turno</label>
+        <input type="datetime-local" id="fine" required>
+
+        <button type="submit">Salva su iPhone</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('turnoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const titolo = document.getElementById('titolo').value;
+        const inizio = new Date(document.getElementById('inizio').value);
+        const fine = new Date(document.getElementById('fine').value);
+
+        // Controllo che la data di fine sia successiva a quella di inizio
+        if (fine <= inizio) {
+            alert("Attenzione: l'orario di fine turno deve essere successivo a quello di inizio!");
+            return;
+        }
+
+        const formattaData = (data) => {
+            return data.getFullYear() +
+                   String(data.getMonth() + 1).padStart(2, '0') +
+                   String(data.getDate()).padStart(2, '0') + 'T' +
+                   String(data.getHours()).padStart(2, '0') +
+                   String(data.getMinutes()).padStart(2, '0') +
+                   String(data.getSeconds()).padStart(2, '0');
+        };
+
+        const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Generatore Turni Sole365//IT
+BEGIN:VEVENT
+SUMMARY:${titolo}
+DTSTART:${formattaData(inizio)}
+DTEND:${formattaData(fine)}
+DESCRIPTION:Turno lavorativo inserito dal portale.
+END:VEVENT
+END:VCALENDAR`;
+
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Turno_Sole365.ics`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+</script>
+
+</body>
+</html>
